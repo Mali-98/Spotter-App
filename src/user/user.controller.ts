@@ -3,9 +3,19 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
+
+
+  @Post('register')
+  async register(@Body() createUserDto: CreateUserDto) {
+    const { email, phoneNumber } = createUserDto;
+    if (!email && !phoneNumber) {
+      throw new Error('Either email or phone number must be provided.');
+    }
+    return this.userService.register(createUserDto);
+  }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {

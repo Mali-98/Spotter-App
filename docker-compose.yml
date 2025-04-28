@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: spotter-app-db
+    restart: always
+    environment:
+      POSTGRES_USER: spotter_user
+      POSTGRES_PASSWORD: spotter_pass
+      POSTGRES_DB: spotter_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - spotter_data:/var/lib/postgresql/data
+
+volumes:
+  spotter_data:
