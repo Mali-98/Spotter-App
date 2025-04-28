@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateProfileDto } from 'src/profile/dto/create-profile.dto';
 
 @Controller('users')
 export class UserController {
@@ -15,6 +16,14 @@ export class UserController {
       throw new Error('Either email or phone number must be provided.');
     }
     return this.userService.register(createUserDto);
+  }
+
+  @Post(':userId/profile')
+  async createProfile(
+    @Param('userId') userId: string,
+    @Body() createProfileDto: CreateProfileDto
+  ) {
+    return this.userService.createProfile(userId, createProfileDto);
   }
 
   @Post()
