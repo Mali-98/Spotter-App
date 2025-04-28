@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/entities/user.entity';
+import { ProfileModule } from './profile/profile.module';
+import { Profile } from './profile/entities/profile.entity';
 
 @Module({
   imports: [
@@ -14,9 +16,9 @@ import { User } from './user/entities/user.entity';
       username: 'spotter_user',
       password: 'spotter_pass',
       database: 'spotter_db',
-      entities: [User],
+      entities: [User, Profile],
       synchronize: true,
-    }), UserModule],
+    }), UserModule, ProfileModule],
   controllers: [AppController],
   providers: [AppService],
 })

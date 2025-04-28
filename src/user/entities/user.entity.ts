@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Profile } from 'src/profile/entities/profile.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export class User {
@@ -14,12 +15,15 @@ export class User {
     @Column()
     password: string;
 
-    @Column()
-    name: string;
-
     @Column({ default: 'user' })
     role: string;
 
-    @Column()
-    goal: string;
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @OneToOne(() => Profile, (profile) => profile.user)
+    profile: Profile;
 }
