@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/entities/user.entity';
 import { ProfileModule } from './profile/profile.module';
 import { Profile } from './profile/entities/profile.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -13,12 +14,12 @@ import { Profile } from './profile/entities/profile.entity';
       type: 'postgres',
       host: 'localhost',
       port: 5432,
-      username: 'spotter_user',
+      username: 'spotter_user', // (environment variable recommended)
       password: 'spotter_pass',
       database: 'spotter_db',
       entities: [User, Profile],
       synchronize: true,
-    }), UserModule, ProfileModule],
+    }), UserModule, ProfileModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })

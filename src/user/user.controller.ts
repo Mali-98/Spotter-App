@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, ForbiddenException } from '@nestjs/common';
 import { UserService } from './user.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';  // Use JWT guard
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateProfileDto } from 'src/profile/dto/create-profile.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/auth/user.decorator';
 
 @Controller('users')
 export class UserController {
@@ -19,12 +22,23 @@ export class UserController {
   }
 
   @Post(':userId/profile')
+  @UseGuards(JwtAuthGuard)
   async createProfile(
     @Param('userId') userId: string,
-    @Body() createProfileDto: CreateProfileDto
+    @Body() createProfileDto: CreateProfileDto,
+    @User() user: any,
   ) {
+    console.log('✅ Controller reached. User from decorator:', user);
+
+    if (userId !== user.id) {
+      console.log(`❌ Forbidden: userId param ${userId} !== token user.id ${user.id}`);
+      throw new ForbiddenException();
+    }
+
     return this.userService.createProfile(userId, createProfileDto);
   }
+
+
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
