@@ -20,16 +20,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     async validate(payload: JwtPayload) {
-        console.log('✅ validate() called. Payload:', payload);
 
         const user = await this.userRepository.findOne({ where: { id: payload.sub } });
 
         if (!user) {
-            console.log('❌ No user found with ID:', payload.sub);
             throw new UnauthorizedException('Invalid token');
         }
 
-        console.log('✅ User found:', user);
         return user;
     }
 

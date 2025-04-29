@@ -28,10 +28,8 @@ export class UserController {
     @Body() createProfileDto: CreateProfileDto,
     @User() user: any,
   ) {
-    console.log('✅ Controller reached. User from decorator:', user);
 
     if (userId !== user.id) {
-      console.log(`❌ Forbidden: userId param ${userId} !== token user.id ${user.id}`);
       throw new ForbiddenException();
     }
 
