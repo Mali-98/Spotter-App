@@ -40,27 +40,35 @@ export class AdviceService {
   }
 
   async getAdviceForUser(userId: string) {
-    const profile = await this.profileRepo.findOne({
-      where: { user: { id: userId } },
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
 
-    if (!profile) {
-      throw new NotFoundException('Profile not found for this user');
+    try {
+      const profile = await queryRunner.manager.findOne(Profile, {
+        where: { user: { id: userId } },
+        relations: ['user'],
+      });
+
+      if (!profile) {
+        throw new NotFoundException('Profile not found for this user');
+      }
+
+      const { goal, preferences = [], challenges = [] } = profile;
+
+      const result = await queryRunner.query(
+        `
+        SELECT *
+        FROM advice
+        WHERE goal = $1
+          AND (preferences::text[] && $2::text[] OR preferences IS NULL)
+          AND (challenges::text[] && $3::text[] OR challenges IS NULL)
+        `,
+        [goal, preferences, challenges],
+      );
+
+      return result;
+    } finally {
+      await queryRunner.release();
     }
-
-    const { goal, preferences, challenges } = profile;
-
-    return this.adviceRepo
-      .createQueryBuilder('advice')
-      .where('advice.goal = :goal', { goal })
-      .andWhere(
-        '(advice.preferences && ARRAY[:...preferences]::"Preference"[] OR advice.preferences IS NULL)',
-        { preferences },
-      )
-      .andWhere(
-        '(advice.challenges && ARRAY[:...challenges]::"Challenge"[] OR advice.challenges IS NULL)',
-        { challenges },
-      )
-      .getMany();
   }
 }
