@@ -8,6 +8,8 @@ import { ProfileModule } from './profile/profile.module';
 import { Profile } from './profile/entities/profile.entity';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { AdviceModule } from './advice/advice.module';
+import { Advice } from './advice/entities/advice.entity';
 
 @Module({
   imports: [
@@ -19,9 +21,9 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Profile],
+      entities: [User, Profile, Advice],
       synchronize: true,
-    }), UserModule, ProfileModule, AuthModule],
+    }), UserModule, ProfileModule, AuthModule, AdviceModule],
   controllers: [AppController],
   providers: [AppService],
 })

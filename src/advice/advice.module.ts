@@ -1,0 +1,14 @@
+import { Module } from '@nestjs/common';
+import { AdviceService } from './advice.service';
+import { AdviceController } from './advice.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Advice } from './entities/advice.entity';
+import { Profile } from 'src/profile/entities/profile.entity';
+import { AdviceUserController } from './advice-user.controller';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([Advice, Profile])],  // Register AdviceRepository here
+  controllers: [AdviceController, AdviceUserController],
+  providers: [AdviceService],
+})
+export class AdviceModule { }
