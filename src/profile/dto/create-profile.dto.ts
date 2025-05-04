@@ -1,17 +1,20 @@
-import { IsString, IsInt, IsNumber, IsOptional, IsArray } from 'class-validator';
+import { IsString, IsInt, IsNumber, IsOptional, IsArray, IsEnum } from 'class-validator';
+import { Goal, ActivityLevel, Gender } from '../entities/profile.entity';
+import { Preference } from '../enums/preference.enum';
+import { Challenge } from '../enums/challenge.enum';
 
 export class CreateProfileDto {
     @IsString()
     name: string;
 
-    @IsString()
-    goal: string;
+    @IsEnum(Goal)
+    goal: Goal;
 
     @IsInt()
     age: number;
 
-    @IsString()
-    gender: string;
+    @IsEnum(Gender)
+    gender: Gender;
 
     @IsNumber()
     height: number;
@@ -19,14 +22,16 @@ export class CreateProfileDto {
     @IsNumber()
     weight: number;
 
-    @IsString()
-    activityLevel: string;
+    @IsEnum(ActivityLevel)
+    activityLevel: ActivityLevel;
 
     @IsOptional()
     @IsArray()
-    preferences?: string[];
+    @IsEnum(Preference, { each: true })
+    preferences?: Preference[];
 
     @IsOptional()
     @IsArray()
-    challenges?: string[];
+    @IsEnum(Challenge, { each: true })
+    challenges?: Challenge[];
 }
