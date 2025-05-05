@@ -9,6 +9,8 @@ import {
 } from '@nestjs/common';
 import { AdviceService } from './advice.service';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/decorator/roles.decorator';
+import { UserRole } from 'src/user/entities/user.entity';
 
 @Controller('users/:userId/advice')
 export class AdviceUserController {
@@ -16,6 +18,7 @@ export class AdviceUserController {
 
   @Get()
   @UseGuards(RolesGuard)
+  @Roles(UserRole.USER)
   getAdviceForUser(@Param('userId') userId: string, @Req() req) {
     if (userId !== req.user.sub) {
       throw new ForbiddenException();
