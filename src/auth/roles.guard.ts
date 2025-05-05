@@ -11,7 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector, private jwtService: JwtService) {}
+  constructor(private reflector: Reflector, private jwtService: JwtService) { }
 
   canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<string[]>(
@@ -43,7 +43,7 @@ export class RolesGuard implements CanActivate {
 
       return true;
     } catch (err) {
-      throw new ForbiddenException('Invalid or expired token');
+      throw new ForbiddenException('Insufficient role or expired token');
     }
   }
 }
