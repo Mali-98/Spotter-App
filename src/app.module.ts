@@ -10,6 +10,8 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { AdviceModule } from './advice/advice.module';
 import { Advice } from './advice/entities/advice.entity';
+import { ChatModule } from './chat/chat.module';
+import { ChatHistory } from './chat/entities/chat-history.entity';
 
 @Module({
   imports: [
@@ -21,9 +23,9 @@ import { Advice } from './advice/entities/advice.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Profile, Advice],
+      entities: [User, Profile, Advice, ChatHistory],
       synchronize: true,
-    }), UserModule, ProfileModule, AuthModule, AdviceModule],
+    }), UserModule, ProfileModule, AuthModule, AdviceModule, ChatModule],
   controllers: [AppController],
   providers: [AppService],
 })
