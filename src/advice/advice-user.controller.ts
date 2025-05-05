@@ -1,19 +1,25 @@
 // src/advice/advice-user.controller.ts
-import { Controller, ForbiddenException, Get, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AdviceService } from './advice.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { User } from 'src/auth/user.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('users/:userId/advice')
 export class AdviceUserController {
-    constructor(private readonly adviceService: AdviceService) { }
+  constructor(private readonly adviceService: AdviceService) {}
 
-    @Get()
-    @UseGuards(JwtAuthGuard)
-    getAdviceForUser(@Param('userId') userId: string, @User() user: any,) {
-        if (userId !== user.id) {
-            throw new ForbiddenException();
-        }
-        return this.adviceService.getAdviceForUser(userId);
+  @Get()
+  @UseGuards(RolesGuard)
+  getAdviceForUser(@Param('userId') userId: string, @Req() req) {
+    if (userId !== req.user.sub) {
+      throw new ForbiddenException();
     }
+    return this.adviceService.getAdviceForUser(userId);
+  }
 }

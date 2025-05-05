@@ -1,16 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, ForbiddenException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+  ForbiddenException,
+  Req,
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';  // Use JWT guard
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateProfileDto } from 'src/profile/dto/create-profile.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { User } from 'src/auth/user.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/decorator/roles.decorator';
+import { UserRole } from './entities/user.entity';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
-
+  constructor(private readonly userService: UserService) {}
 
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
@@ -22,21 +34,19 @@ export class UserController {
   }
 
   @Post(':userId/profile')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.PROVIDER, UserRole.USER)
   async createProfile(
     @Param('userId') userId: string,
     @Body() createProfileDto: CreateProfileDto,
-    @User() user: any,
+    @Req() req,
   ) {
-
-    if (userId !== user.id) {
+    if (userId !== req.user.sub) {
       throw new ForbiddenException();
     }
 
     return this.userService.createProfile(userId, createProfileDto);
   }
-
-
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
