@@ -35,7 +35,7 @@ export class UserController {
 
   @Post(':userId/profile')
   @UseGuards(RolesGuard)
-  @Roles(UserRole.PROVIDER, UserRole.USER)
+  @Roles(UserRole.ADMIN, UserRole.USER)
   async createProfile(
     @Param('userId') userId: string,
     @Body() createProfileDto: CreateProfileDto,

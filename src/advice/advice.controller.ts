@@ -1,9 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { AdviceService } from './advice.service';
 import { CreateAdviceDto } from './dto/create-advice.dto';
 import { UpdateAdviceDto } from './dto/update-advice.dto';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/decorator/roles.decorator';
+import { UserRole } from 'src/user/entities/user.entity';
 
 @Controller('advice')
+@UseGuards(RolesGuard)
+@Roles(UserRole.ADMIN)
 export class AdviceController {
   constructor(private readonly adviceService: AdviceService) {}
 

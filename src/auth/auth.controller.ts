@@ -1,18 +1,32 @@
-import { Controller, Post, Body, ForbiddenException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { CreateAuthDto } from './dto/create-auth.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() body: { emailOrPhone: string; password: string }) {
-    const { emailOrPhone, password } = body;
+  async login(@Body() body: CreateAuthDto) {
+    const { email, phoneNumber, password } = body;
 
-    try {
-      return await this.authService.login(emailOrPhone, password);
-    } catch (err) {
-      throw new ForbiddenException('Invalid credentials');
+    if (!email && !phoneNumber) {
+      throw new BadRequestException(
+        'Either email or phoneNumber must be provided',
+      );
     }
+
+    const user = await this.authService.validateUser(
+      email,
+      phoneNumber,
+      password,
+    );
+    return this.authService.generateToken(user);
   }
 }

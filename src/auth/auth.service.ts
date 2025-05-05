@@ -13,10 +13,18 @@ export class AuthService {
     private jwtService: JwtService, // Access JWT service to create tokens
   ) {}
 
-  async validateUser(emailOrPhone: string, password: string): Promise<User> {
-    const user = await this.userRepository.findOne({
-      where: [{ email: emailOrPhone }, { phoneNumber: emailOrPhone }],
-    });
+  async validateUser(
+    email?: string,
+    phoneNumber?: string,
+    password?: string,
+  ): Promise<User> {
+    let user: User | null = null;
+
+    if (email) {
+      user = await this.userRepository.findOne({ where: { email } });
+    } else if (phoneNumber) {
+      user = await this.userRepository.findOne({ where: { phoneNumber } });
+    }
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
@@ -25,8 +33,7 @@ export class AuthService {
     return user;
   }
 
-  async login(emailOrPhone: string, password: string) {
-    const user = await this.validateUser(emailOrPhone, password);
+  async generateToken(user: User) {
     const payload = { sub: user.id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
