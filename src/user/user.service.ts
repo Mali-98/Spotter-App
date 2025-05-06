@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -29,39 +29,32 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  async createProfile(userId: string, createProfileDto: CreateProfileDto) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+  findAll() {
+    return this.userRepository.find();
+  }
 
+  async findOne(userId: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+    return user;
+  }
+
+  async update(userId: string, updateUserDto: UpdateUserDto): Promise<User> {
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
-    const profile = this.profileRepository.create(createProfileDto);
-    await this.profileRepository.save(profile);
-
-    user.profile = profile;
-    await this.userRepository.save(user);
-
-    return profile;
+    await this.userRepository.update(userId, updateUserDto);
+    return this.findOne(userId);
   }
 
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
-
-  findAll() {
-    return `This action returns all user`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(userId: string): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+    await this.userRepository.remove(user);
   }
 }
