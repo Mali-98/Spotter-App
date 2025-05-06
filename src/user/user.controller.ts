@@ -22,7 +22,7 @@ import { UserRole } from './entities/user.entity';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
@@ -31,21 +31,6 @@ export class UserController {
       throw new Error('Either email or phone number must be provided.');
     }
     return this.userService.register(createUserDto);
-  }
-
-  @Post(':userId/profile')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.USER)
-  async createProfile(
-    @Param('userId') userId: string,
-    @Body() createProfileDto: CreateProfileDto,
-    @Req() req,
-  ) {
-    if (userId !== req.user.sub) {
-      throw new ForbiddenException();
-    }
-
-    return this.userService.createProfile(userId, createProfileDto);
   }
 
   @Post()
