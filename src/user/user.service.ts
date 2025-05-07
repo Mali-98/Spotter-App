@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -14,6 +15,7 @@ import { Profile } from 'src/profile/entities/profile.entity';
 import { EmailService } from 'src/common/email.service';
 import { randomBytes } from 'crypto';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class UserService {
@@ -106,33 +108,43 @@ export class UserService {
     return { message: 'A reset code has been sent to your email.' };
   }
 
-  async resetPassword(
-    email: string,
-    phoneNumber: string,
-    token: string,
-    newPassword: string,
-  ): Promise<{ message: string }> {
-    const record = await this.tokenRepository.findOne({
-      where: { email, phoneNumber, token },
-    });
+  async resetPassword(dto: ResetPasswordDto): Promise<{ message: string }> {
+    const { token, newPassword } = dto;
 
-    if (!record) {
-      throw new ForbiddenException('Invalid token or user details.');
+    const tokenEntry = await this.tokenRepository.findOne({ where: { token } });
+
+    if (!tokenEntry) {
+      throw new NotFoundException('Invalid or expired reset token.');
     }
+
+    const isExpired =
+      Date.now() - new Date(tokenEntry.createdAt).getTime() >
+      24 * 60 * 60 * 1000; //last for a day
+    if (isExpired) {
+      await this.tokenRepository.delete({ token }); // cleanup
+      throw new BadRequestException('Reset token has expired.');
+    }
+
+    const { email, phoneNumber } = tokenEntry;
 
     const user = await this.userRepository.findOne({
       where: { email, phoneNumber },
     });
 
     if (!user) {
-      throw new NotFoundException('User not found.');
+      throw new NotFoundException('User associated with this token not found.');
     }
 
-    const hashed = await bcrypt.hash(newPassword, 10);
-    await this.userRepository.update(user.id, { password: hashed });
+    user.password = await this.hashPassword(newPassword);
+    await this.userRepository.save(user);
 
-    //await this.tokenRepository.delete(record.id); // optional: delete token after use
+    await this.tokenRepository.delete({ token });
 
-    return { message: 'Password has been reset.' };
+    return { message: 'Password has been successfully reset.' };
+  }
+
+  private async hashPassword(password: string): Promise<string> {
+    const bcrypt = await import('bcrypt');
+    return bcrypt.hash(password, 10);
   }
 }
