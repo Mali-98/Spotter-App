@@ -12,6 +12,9 @@ import { AdviceModule } from './advice/advice.module';
 import { Advice } from './advice/entities/advice.entity';
 import { ChatModule } from './chat/chat.module';
 import { ChatHistory } from './chat/entities/chat-history.entity';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { join } from 'path';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -25,8 +28,24 @@ import { ChatHistory } from './chat/entities/chat-history.entity';
       database: process.env.DB_NAME,
       entities: [User, Profile, Advice, ChatHistory],
       synchronize: true,
-    }), UserModule, ProfileModule, AuthModule, AdviceModule, ChatModule],
+    }),
+    UserModule,
+    ProfileModule,
+    AuthModule,
+    AdviceModule,
+    ChatModule,
+    MailerModule.forRoot({
+      transport: process.env.SMTP_TRANSPORT,
+      template: {
+        dir: join(__dirname, 'templates'),
+        adapter: new HandlebarsAdapter(),
+        options: {
+          strict: true,
+        },
+      },
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

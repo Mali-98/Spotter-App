@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -7,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { CreateProfileDto } from 'src/profile/dto/create-profile.dto';
 import { Profile } from 'src/profile/entities/profile.entity';
+import { EmailService } from 'src/common/email.service';
 
 @Injectable()
 export class UserService {
@@ -15,7 +20,8 @@ export class UserService {
     private userRepository: Repository<User>,
     @InjectRepository(Profile)
     private profileRepository: Repository<Profile>,
-  ) { }
+    private readonly emailService: EmailService,
+  ) {}
 
   async register(createUserDto: CreateUserDto): Promise<User> {
     const { password, ...rest } = createUserDto;
