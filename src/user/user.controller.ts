@@ -19,10 +19,12 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/decorator/roles.decorator';
 import { UserRole } from './entities/user.entity';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
@@ -50,7 +52,10 @@ export class UserController {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN) // Only admins can update
   @Patch(':userId')
-  update(@Param('userId') userId: string, @Body() updateUserDto: UpdateUserDto) {
+  update(
+    @Param('userId') userId: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     return this.userService.update(userId, updateUserDto);
   }
 
@@ -59,5 +64,20 @@ export class UserController {
   @Delete(':userId')
   remove(@Param('userId') userId: string) {
     return this.userService.remove(userId);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.userService.forgotPassword(dto.email, dto.phoneNumber);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.userService.resetPassword(
+      dto.email,
+      dto.phoneNumber,
+      dto.token,
+      dto.newPassword,
+    );
   }
 }

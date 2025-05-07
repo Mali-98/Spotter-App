@@ -15,6 +15,7 @@ import { ChatHistory } from './chat/entities/chat-history.entity';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { PasswordResetToken } from './user/entities/password-reset-token.entity';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Profile, Advice, ChatHistory],
+      entities: [User, Profile, Advice, ChatHistory, PasswordResetToken],
       synchronize: true,
     }),
     UserModule,
@@ -37,7 +38,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     MailerModule.forRoot({
       transport: process.env.SMTP_TRANSPORT,
       template: {
-        dir: join(__dirname, 'templates'),
+        dir: join(__dirname, '..', 'src', 'templates'),
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true,
