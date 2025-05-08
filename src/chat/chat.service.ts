@@ -22,11 +22,26 @@ export class ChatService {
       message,
     });
 
+    // Get recent history (e.g., last 10 exchanges max)
+    const recentMessages = await this.chatHistoryRepo.find({
+      where: { userId },
+      order: { createdAt: 'ASC' },
+      take: 20, // Limit the number of messages to stay within token limit
+    });
+
+    const messages = recentMessages.map(msg => ({
+      role: msg.role,
+      content: msg.message,
+    }));
+
+    // Add the new user message as the latest
+    messages.push({ role: 'user', content: message });
+
     const response = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       {
         model: 'llama3-8b-8192',
-        messages: [{ role: 'user', content: message }],
+        messages,
         temperature: 0.7,
         max_tokens: 512,
       },
@@ -49,6 +64,7 @@ export class ChatService {
 
     return aiResponse;
   }
+
 
   async getHistory(userId: string): Promise<ChatHistory[]> {
     return this.chatHistoryRepo.find({
