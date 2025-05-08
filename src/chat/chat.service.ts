@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { ChatHistory } from './entities/chat-history.entity';
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class ChatService {
@@ -12,21 +13,26 @@ export class ChatService {
   constructor(
     @InjectRepository(ChatHistory)
     private chatHistoryRepo: Repository<ChatHistory>,
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
   ) { }
 
   async getChatResponse(message: string, userId: string): Promise<string> {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) throw new Error('User not found');
+
     // Save user message
     await this.chatHistoryRepo.save({
-      userId,
+      user,
       role: 'user',
       message,
     });
 
-    // Get recent history (e.g., last 10 exchanges max)
+    // Get recent messages
     const recentMessages = await this.chatHistoryRepo.find({
-      where: { userId },
+      where: { user: { id: userId } },
       order: { createdAt: 'ASC' },
-      take: 20, // Limit the number of messages to stay within token limit
+      take: 20,
     });
 
     const messages = recentMessages.map(msg => ({
@@ -34,7 +40,6 @@ export class ChatService {
       content: msg.message,
     }));
 
-    // Add the new user message as the latest
     messages.push({ role: 'user', content: message });
 
     const response = await axios.post(
@@ -57,7 +62,7 @@ export class ChatService {
 
     // Save assistant response
     await this.chatHistoryRepo.save({
-      userId,
+      user,
       role: 'assistant',
       message: aiResponse,
     });
@@ -66,9 +71,10 @@ export class ChatService {
   }
 
 
+
   async getHistory(userId: string): Promise<ChatHistory[]> {
     return this.chatHistoryRepo.find({
-      where: { userId },
+      where: { user: { id: userId } },
       order: { createdAt: 'ASC' },
     });
   }

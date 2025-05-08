@@ -1,3 +1,4 @@
+import { ChatHistory } from 'src/chat/entities/chat-history.entity';
 import { Profile } from 'src/profile/entities/profile.entity';
 import {
   Entity,
@@ -6,6 +7,7 @@ import {
   OneToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 export enum UserRole {
@@ -38,4 +40,7 @@ export class User {
 
   @OneToOne(() => Profile, (profile) => profile.user)
   profile: Profile;
+
+  @OneToMany(() => ChatHistory, (chatHistory) => chatHistory.user)
+  chatHistories: ChatHistory[];
 }
