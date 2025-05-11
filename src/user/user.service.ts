@@ -12,7 +12,7 @@ import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { CreateProfileDto } from 'src/profile/dto/create-profile.dto';
 import { Profile } from 'src/profile/entities/profile.entity';
-import { EmailService } from 'src/common/email.service';
+import { EmailService } from '../common/email.service';
 import { randomBytes } from 'crypto';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
 import { ResetPasswordDto } from './dto/reset-password.dto';
