@@ -1,10 +1,9 @@
 // dto/forgot-password.dto.ts
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
 
 export class ForgotPasswordDto {
-  @IsEmail()
-  email: string;
 
-  @IsString()
+  @IsNotEmpty()
+  @IsPhoneNumber(null)
   phoneNumber: string;
 }

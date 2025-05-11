@@ -24,13 +24,13 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     const { email, phoneNumber } = createUserDto;
-    if (!email && !phoneNumber) {
-      throw new Error('Either email or phone number must be provided.');
+    if (!email) {
+      throw new Error('Email must be provided.');
     }
     return this.userService.register(createUserDto);
   }
@@ -68,7 +68,7 @@ export class UserController {
 
   @Post('forgot-password')
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
-    return this.userService.forgotPassword(dto.email, dto.phoneNumber);
+    return this.userService.forgotPassword(dto.phoneNumber);
   }
 
   @Post('reset-password')

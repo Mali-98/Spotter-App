@@ -5,18 +5,18 @@ import {
   MinLength,
   ValidateIf,
   IsEnum,
+  IsDateString
 } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
 
 export class CreateUserDto {
-  @ValidateIf((o) => !o.phoneNumber)
+  @IsString()
+  name: string;
+
   @IsEmail()
-  @IsOptional()
   email?: string;
 
-  @ValidateIf((o) => !o.email)
   @IsString()
-  @IsOptional()
   phoneNumber?: string;
 
   @IsString()
@@ -26,4 +26,7 @@ export class CreateUserDto {
   @IsEnum(UserRole)
   @IsOptional() // optional so default can apply in entity
   role?: UserRole;
+
+  @IsDateString()
+  dateOfBirth?: string; // ISO 8601 format (YYYY-MM-DD)
 }

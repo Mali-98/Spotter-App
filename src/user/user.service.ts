@@ -27,19 +27,21 @@ export class UserService {
     @InjectRepository(PasswordResetToken)
     private tokenRepository: Repository<PasswordResetToken>,
     private readonly emailService: EmailService,
-  ) {}
+  ) { }
 
   async register(createUserDto: CreateUserDto): Promise<User> {
-    const { password, ...rest } = createUserDto;
+    const { password, dateOfBirth, ...rest } = createUserDto;
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = this.userRepository.create({
       ...rest,
       password: hashedPassword,
+      dateOfBirth: new Date(dateOfBirth), // Convert string to Date object
     });
 
     return this.userRepository.save(user);
   }
+
 
   findAll() {
     return this.userRepository.find();
@@ -71,7 +73,6 @@ export class UserService {
   }
 
   async forgotPassword(
-    newEmail: string,
     phoneNumber: string,
   ): Promise<{ message: string }> {
     const user = await this.userRepository.findOne({ where: { phoneNumber } });
@@ -82,21 +83,17 @@ export class UserService {
       );
     }
 
-    // Update email if needed
-    user.email = newEmail;
-    await this.userRepository.save(user);
-
     const token = randomBytes(3).toString('hex'); // 6-character code
 
     await this.tokenRepository.save({
-      email: newEmail,
+      email: user.email,
       phoneNumber,
       token,
     });
 
     await this.emailService.sendEmail({
       from: process.env.SMTP_DEMO_EMAIL,
-      to: newEmail,
+      to: user.email,
       subject: 'Reset Your Password',
       template: 'password-reset',
       context: {
@@ -107,6 +104,7 @@ export class UserService {
 
     return { message: 'A reset code has been sent to your email.' };
   }
+
 
   async resetPassword(dto: ResetPasswordDto): Promise<{ message: string }> {
     const { token, newPassword } = dto;

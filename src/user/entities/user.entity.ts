@@ -20,10 +20,13 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true, nullable: true })
+  @Column()
+  name: string;
+
+  @Column({ unique: true, nullable: false })
   email: string;
 
-  @Column({ unique: true, nullable: true })
+  @Column({ unique: true, nullable: false })
   phoneNumber: string;
 
   @Column()
@@ -43,4 +46,8 @@ export class User {
 
   @OneToMany(() => ChatHistory, (chatHistory) => chatHistory.user)
   chatHistories: ChatHistory[];
+
+  @Column({ type: 'date' })
+  dateOfBirth: Date;
+
 }

@@ -37,9 +37,6 @@ export class Profile {
     @JoinColumn({ name: 'user_id' })
     user: User;
 
-    @Column()
-    name: string;
-
     @Column({
         type: 'enum',
         enum: Goal,

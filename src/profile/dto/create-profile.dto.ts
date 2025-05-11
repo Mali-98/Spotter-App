@@ -4,8 +4,6 @@ import { Preference } from '../enums/preference.enum';
 import { Challenge } from '../enums/challenge.enum';
 
 export class CreateProfileDto {
-    @IsString()
-    name: string;
 
     @IsEnum(Goal)
     goal: Goal;
